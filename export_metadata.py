@@ -60,9 +60,9 @@ if __name__ == '__main__':
         copyfile(join(path,file), join(device_path,'Mangas',file))
 
     # Ask for user to initialize the new files in database by disconnecting Kobo, and plug it back
-    read = input('All desired files has been copied on the Kobo device.\n' +
-                 'Please unplug it and wait for the end of the importation, and plug it back.\n' +
-                 'Press any key when the Kobo device is plugged again and detected by the computer.')
+    input('All desired files has been copied on the Kobo device.\n' +
+          'Please unplug it and wait for the end of the importation, then plug it back.\n' +
+          'Press any key when the Kobo device is plugged and detected by the computer.')
 
     # Connect to Kobo database
     db = sql.connect(join(device_path,'.kobo/KoboReader.sqlite'))
@@ -94,25 +94,33 @@ if __name__ == '__main__':
             except KeyError:
                 original_title = None
             try:
-                (d,m,y) = vol['date'].split('-')
-                date = time_to_kobo(y,m,d)
+                date = str(vol['date']).split('-')
+                if len(date) == 3:
+                    (d,m,y) = date
+                    date = time_to_kobo(y,m,d)
+                else:
+                    date = date[0]
             except KeyError:
-                date = None
+                date = 'unknown'
         else:
             title = serie
             vol = volumes[1]
             file = vol['file']
             contentID =  join('file:///mnt/onboard/Mangas',file)
             try:
-                (d,m,y) = vol['date'].split('-')
-                date = time_to_kobo(y,m,d)
-            except KeyError:
-                date = None
-            try:
                 original_title = metadata['original']
                 title = title + ' (' + original_title + ')'
             except KeyError:
                 original_title = None
+            try:
+                date = str(vol['date']).split('-')
+                if len(date) == 3:
+                    (d,m,y) = date
+                    date = time_to_kobo(y,m,d)
+                else:
+                    date = date[0]
+            except KeyError:
+                date = 'unknown'
 
         print('Treating '+file)
 
@@ -122,10 +130,9 @@ if __name__ == '__main__':
         c.execute("UPDATE content SET Language=?     WHERE ContentID=?" , (language,    contentID))
         c.execute("UPDATE content SET Description=?  WHERE ContentID=?" , (description, contentID))
         if not args.isos:
-            c.execute("UPDATE content SET Series=?       WHERE ContentID=?" , (serie,       contentID))
-            c.execute("UPDATE content SET SeriesNumber=? WHERE ContentID=?" , (id,          contentID))
-        if date is not None:
-            c.execute("UPDATE content SET DateCreated=?  WHERE ContentID=?" , (date,        contentID))
+            c.execute("UPDATE content SET Series=?       WHERE ContentID=?" , (serie,   contentID))
+            c.execute("UPDATE content SET SeriesNumber=? WHERE ContentID=?" , (id,      contentID))
+        c.execute("UPDATE content SET DateCreated=?  WHERE ContentID=?" , (date,    contentID))
 
         c.execute("INSERT INTO ShelfContent VALUES (?,?,?,'false','false')", (serie, contentID, t_kobo))
 
