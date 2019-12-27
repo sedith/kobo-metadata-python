@@ -48,7 +48,6 @@ if __name__ == '__main__':
         write_yaml(yamlfile, 'author', 'TODO')
         write_yaml(yamlfile, 'editor', 'TODO')
         write_yaml(yamlfile, 'language', 'TODO')
-        write_yaml(yamlfile, 'source', 'TODO')
         write_yaml(yamlfile, 'synopsis', 'TODO')
         write_yaml(yamlfile, 'volumes', None)
 

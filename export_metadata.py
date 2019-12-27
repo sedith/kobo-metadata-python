@@ -79,48 +79,31 @@ if __name__ == '__main__':
         c.execute("INSERT INTO Shelf VALUES (?,?,?,?,?,?,?,?,?,?,?) ", (t_kobo, serie, serie, t_kobo, serie, None, 'false', 'true', 'false', None, None))
 
     # Import all the metadatas to the Kobo database
+    # Get volume metadata
     for id in volumes:
-        if not args.isos:
-            if args.volumes is not None and str(id) not in args.volumes:
-                continue
-            # Get volume metadata
-            vol = volumes[id]
-            file = vol['file']
-            contentID =  join('file:///mnt/onboard/Mangas',file)
-            title = vol['name']
-            try:
-                original_title = vol['original']
-                title = title + ' (' + original_title + ')'
-            except KeyError:
-                original_title = None
-            try:
-                date = str(vol['date']).split('-')
-                if len(date) == 3:
-                    (d,m,y) = date
-                    date = time_to_kobo(y,m,d)
-                else:
-                    date = date[0]
-            except KeyError:
-                date = 'unknown'
-        else:
+        if args.volumes is not None and str(id) not in args.volumes:
+            continue
+        vol = volumes[id]
+        file = vol['file']
+        contentID =  join('file:///mnt/onboard/Mangas',file)
+        if args.isos:
             title = serie
-            vol = volumes[1]
-            file = vol['file']
-            contentID =  join('file:///mnt/onboard/Mangas',file)
-            try:
-                original_title = metadata['original']
-                title = title + ' (' + original_title + ')'
-            except KeyError:
-                original_title = None
-            try:
-                date = str(vol['date']).split('-')
-                if len(date) == 3:
-                    (d,m,y) = date
-                    date = time_to_kobo(y,m,d)
-                else:
-                    date = date[0]
-            except KeyError:
-                date = 'unknown'
+        else:
+            title = vol['name']
+        try:
+            original_title = vol['original']
+            title = title + ' (' + original_title + ')'
+        except KeyError:
+            original_title = None
+        try:
+            date = str(vol['date']).split('-')
+            if len(date) == 3:  # metadata is day-month-year
+                (d,m,y) = date
+                date = time_to_kobo(y,m,d)
+            else:               # metadata is year only
+                date = date[0]
+        except KeyError:
+            date = 'unknown'
 
         print('Treating '+file)
 
@@ -129,12 +112,11 @@ if __name__ == '__main__':
         c.execute("UPDATE content SET Publisher=?    WHERE ContentID=?" , (editor,      contentID))
         c.execute("UPDATE content SET Language=?     WHERE ContentID=?" , (language,    contentID))
         c.execute("UPDATE content SET Description=?  WHERE ContentID=?" , (description, contentID))
+        c.execute("UPDATE content SET DateCreated=?  WHERE ContentID=?" , (date,    contentID))
         if not args.isos:
             c.execute("UPDATE content SET Series=?       WHERE ContentID=?" , (serie,   contentID))
             c.execute("UPDATE content SET SeriesNumber=? WHERE ContentID=?" , (id,      contentID))
-        c.execute("UPDATE content SET DateCreated=?  WHERE ContentID=?" , (date,    contentID))
-
-        c.execute("INSERT INTO ShelfContent VALUES (?,?,?,'false','false')", (serie, contentID, t_kobo))
+            c.execute("INSERT INTO ShelfContent VALUES (?,?,?,?,?)", (serie, contentID, t_kobo, 'false', 'false'))
 
     db.commit()
     db.close()
