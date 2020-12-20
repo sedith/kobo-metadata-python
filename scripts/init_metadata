@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(description='Initialize metadata file for a giv
 parser.add_argument('-p', dest='path', help='Path to working directory.', default=None, type=str)
 parser.add_argument('-s', dest='serie', help='Serie\'s name.', default=None, type=str)
 parser.add_argument('-i', dest='index', help='Index of the first volume in the folder.', default=1, type=int)
-# parser.add_argument('-a', dest='author', help='Author\'s name.', default=None, type=str)
+parser.add_argument('-a', dest='author', help='Author\'s name.', default=None, type=str)
 args = parser.parse_args()
 
 def sorted_aphanumeric(data):
@@ -39,13 +39,13 @@ if __name__ == '__main__':
     serie = args.serie
     if serie is None: serie = get_serie(path);
 
-    # author = args.author
-    # if author is None: author = 'TODO'
+    author = args.author
+    if author is None: author = 'TODO'
 
     with open(join(path,'.metadata.yaml'), 'w') as yamlfile:
         init_yaml(yamlfile, serie)
         write_yaml(yamlfile, 'name', serie)
-        write_yaml(yamlfile, 'author', 'TODO')
+        write_yaml(yamlfile, 'author', author)
         write_yaml(yamlfile, 'editor', 'TODO')
         write_yaml(yamlfile, 'language', 'TODO')
         write_yaml(yamlfile, 'synopsis', 'TODO')

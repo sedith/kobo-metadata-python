@@ -11,7 +11,8 @@ parser.add_argument('-v', dest='volumes', help='Ids of volumes to import to the 
 parser.add_argument('-p', dest='path', help='Path to working directory.', default='./', type=str)
 parser.add_argument('-k', dest='kobo', help='Name of Kobo device.', default='KOBORTIN', type=str)
 parser.add_argument('-u', dest='user', help='Name of user.', default='mjacquet', type=str)
-parser.add_argument('-s', dest='isos', help='Specify if the manga is a oneshot', action='store_true')
+parser.add_argument('-s', dest='isos', help='Specify if the manga is a oneshot.', action='store_true')
+parser.add_argument('-d', dest='directory', help='Directory name on Kobo device.', default='Mangas', type=str)
 args = parser.parse_args()
 
 def time_to_kobo(y, m, d, h=None, mi=None, s=None):
@@ -53,11 +54,11 @@ if __name__ == '__main__':
         if not exists(join(path,file)):
             print('Skipping: '+file+' does not exist.')
             continue
-        if exists(join(device_path,'Mangas',file)):
+        if exists(join(device_path,args.directory,file)):
             print('Skipping: '+file+' already exists on Kobo device.')
             continue
         print('Importing '+file)
-        copyfile(join(path,file), join(device_path,'Mangas',file))
+        copyfile(join(path,file), join(device_path,args.directory,file))
 
     # Ask for user to initialize the new files in database by disconnecting Kobo, and plug it back
     input('All desired files has been copied on the Kobo device.\n' +
