@@ -15,16 +15,13 @@ parser.add_argument('-s', dest='isos', help='Specify if the manga is a oneshot.'
 parser.add_argument('-d', dest='directory', help='Directory name on Kobo device.', default='Mangas', type=str)
 args = parser.parse_args()
 
-def time_to_kobo(y, m, d, h=None, mi=None, s=None):
+def time_to_kobo(y, m, d='01', h='00', mi='00', s='00'):
     y = str(y)
     m = str(m)
     d = str(d)
-    if h is None: h = '00'
-    else: h = str(h)
-    if mi is None: mi = '00'
-    else: mi = str(mi)
-    if s is None: s = '00'
-    else: s = str(s)
+    h = str(h)
+    mi = str(mi)
+    s = str(s)
     return y + '-' + m + '-' + d + 'T' + h + ':' + mi + ':' + s + 'Z'
 
 if __name__ == '__main__':
@@ -95,6 +92,9 @@ if __name__ == '__main__':
             if len(date) == 3:  # metadata is day-month-year
                 (d,m,y) = date
                 date = time_to_kobo(y,m,d)
+            elif len(date) == 2:  # metadata is month-year
+                (m,y) = date
+                date = time_to_kobo(y,m)
             else:               # metadata is year only
                 date = date[0]
         except KeyError:
