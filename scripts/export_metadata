@@ -73,12 +73,6 @@ if __name__ == '__main__':
     t = time.localtime()
     t_kobo = time_to_kobo(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
 
-    # Remove existing collection with this name if any and create a new one
-    if not args.isos:
-        c.execute("DELETE FROM Shelf WHERE InternalName='"+serie+"'")
-        c.execute("DELETE FROM ShelfContent WHERE ShelfName='"+serie+"'")
-        c.execute("INSERT INTO Shelf VALUES (?,?,?,?,?,?,?,?,?,?,?) ", (t_kobo, serie, serie, t_kobo, serie, None, 'false', 'true', 'false', None, None))
-
     # Import all the metadatas to the Kobo database
     # Get volume metadata
     for id in volumes:
@@ -113,11 +107,12 @@ if __name__ == '__main__':
         c.execute("UPDATE content SET Publisher=?    WHERE ContentID=?" , (editor,      contentID))
         c.execute("UPDATE content SET Language=?     WHERE ContentID=?" , (language,    contentID))
         c.execute("UPDATE content SET Description=?  WHERE ContentID=?" , (description, contentID))
-        c.execute("UPDATE content SET DateCreated=?  WHERE ContentID=?" , (date,    contentID))
+        c.execute("UPDATE content SET DateCreated=?  WHERE ContentID=?" , (date,        contentID))
         if not args.isos:
-            c.execute("UPDATE content SET Series=?       WHERE ContentID=?" , (serie,   contentID))
-            c.execute("UPDATE content SET SeriesNumber=? WHERE ContentID=?" , (id,      contentID))
-            c.execute("INSERT INTO ShelfContent VALUES (?,?,?,?,?)", (serie, contentID, t_kobo, 'false', 'false'))
+            c.execute("UPDATE content SET Series=?              WHERE ContentID=?" , (serie,    contentID))
+            c.execute("UPDATE content SET SeriesNumber=?        WHERE ContentID=?" , (id,       contentID))
+            c.execute("UPDATE content SET SeriesID=?            WHERE ContentID=?" , (serie,    contentID))
+            c.execute("UPDATE content SET SeriesNumberFloat=?   WHERE ContentID=?" , (id,       contentID))
 
     db.commit()
     db.close()
