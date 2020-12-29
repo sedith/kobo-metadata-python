@@ -6,6 +6,7 @@ import yaml
 import sqlite3 as sql
 import time
 
+
 parser = argparse.ArgumentParser(description='Export metadata to the Kobo database.')
 parser.add_argument('-v', dest='volumes', help='Ids of volumes to import to the Kobo device.', default=None, type=str, nargs='*')
 parser.add_argument('-p', dest='path', help='Path to working directory.', default='./', type=str)
@@ -65,10 +66,6 @@ if __name__ == '__main__':
     # Connect to Kobo database
     db = sql.connect(join(device_path,'.kobo/KoboReader.sqlite'))
     c = db.cursor()
-
-    # Get system time and convert it to kobo time format
-    t = time.localtime()
-    t_kobo = time_to_kobo(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
 
     # Import all the metadatas to the Kobo database
     # Get volume metadata
