@@ -19,21 +19,21 @@ class KoboDB:
     def __init__(self, path):
         self.path = path
         self.dbpath = None
-        self.conn = None
+        self.db = None
         self.cursor = None
 
     # Connexion
     def connect(self):
-        """Create connection handler with Kobo database."""
+        """Create dbection handler with Kobo database."""
         dbpath = join(self.path, '.kobo/KoboReader.sqlite')
-        self.conn = sql.connect(dbpath)
-        self.cursor = self.conn.cursor()
+        self.db = sql.connect(dbpath)
+        self.cursor = self.db.cursor()
 
     def disconnect(self):
-        """Commit and close connection to database."""
-        self.conn.commit()
-        self.conn.close()
-        self.conn = None
+        """Commit and close dbection to database."""
+        self.db.commit()
+        self.db.close()
+        self.db = None
         self.cursor = None
 
     def get_current_time(self):
@@ -64,25 +64,23 @@ class KoboDB:
             modifiers = ' WHERE ' + ' OR '.join(modifiers)
         if order:
             order = ' ORDER BY ' + table + '.' + order
-
         self.cursor.execute('SELECT %s FROM %s%s%s' % (selectors, table, modifiers, order))
-
         return self.cursor.fetchall()
 
     def get_list_dict(self, table='content', selectors='*', **kwargs):
         '''List elements within a given table as a dictionnary.'''
         l = self.get_list(table=table, selectors=selectors, **kwargs)
-
         if selectors == '*':
             selectors = self.get_field_names(table)
-
         return [dict(list(zip(selectors, values))) for values in l]
 
     # Book getters
     def book_from_title(self, bookname):
         """Fin a book contentID from its book title."""
         self.cursor.execute('SELECT ContentID FROM content WHERE Title=?' , (bookname,))
-        contentID = self.cursor.fetchone()[0]
+        id = self.cursor.fetchone()
+        if id:
+            return id[0]
 
     def book_from_filename(self, filename):
         """Find a book contentID from its filename."""
@@ -128,11 +126,12 @@ class KoboDB:
         """List all shelves in the database."""
         return self.get_list_dict('Shelf', selectors=['Id'])
 
-    def list_books_in_shelf(self, shelfname):
+    def list_shelf_contents(self, shelfname):
         """List all books in a given shelf."""
         ids = self.get_list('ShelfContent', selectors=['contentID'], modifiers=['ShelfName="%s"' % shelfname])
-        modifiers = ['ContentID="%s"' % id for id in ids]
-        return self.get_list_dict('content', selectors=['Title'], modifiers=modifiers)
+        if ids != []:
+            modifiers = ['ContentID="%s"' % id for id in ids]
+            return self.get_list_dict('content', selectors=['Title'], modifiers=modifiers)
 
     def add_shelf(self, shelfname):
         """Create an empty shelf."""

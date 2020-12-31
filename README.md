@@ -3,7 +3,7 @@
 Exports the metadata from a customized yaml file to the Kobo database.  
 Written for Linux (access path to Kobo device begin `/media/<user>/<device>`). Needs to be adapted for any other OS.
 
-This package is partially based on [Akkana's scripts for Kobo](https://github.com/akkana/scripts/tree/master/kobo).
+This package is partially based on [Akkana's scripts for Kobo](https://github.com/akkana/scripts/tree/master/kobo) for a couple of functions in _utils.py_.
 
 ## Dependencies
 
