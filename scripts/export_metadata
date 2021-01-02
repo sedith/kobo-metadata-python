@@ -6,6 +6,7 @@ import yaml
 import sqlite3 as sql
 import metadatakobo as mk
 
+
 parser = argparse.ArgumentParser(description='Export metadata to the Kobo database.')
 parser.add_argument('-v', dest='volumes', help='Ids of volumes to import to the Kobo device.', default=None, type=str, nargs='*')
 parser.add_argument('-p', dest='path', help='Path to working directory.', default='./', type=str)
@@ -80,7 +81,7 @@ if __name__ == '__main__':
             if len(date) == 3:  # metadata is day-month-year
                 (d,m,y) = date
                 date = mk.time_to_kobo(y,m,d)
-            elif len(date) == 2:  # metadata is month-year
+            elif len(date) == 2: # metadata is month-year
                 (m,y) = date
                 date = mk.time_to_kobo(y,m)
             else:               # metadata is year only

@@ -5,6 +5,7 @@ from os.path import isfile, isdir, join, exists
 import re
 import yaml
 
+
 parser = argparse.ArgumentParser(description='Initialize metadata file for a given serie folder.')
 parser.add_argument('-p', dest='path', help='Path to working directory.', default=None, type=str)
 parser.add_argument('-s', dest='serie', help='Serie\'s name.', default=None, type=str)
@@ -23,7 +24,7 @@ def get_serie(path):
     return serie
 
 def init_yaml(file, serie):
-    file.write('--- # '+serie+' Metadata\n')
+    file.write('--- # %s Metadata\n' % serie)
 
 def write_yaml(file, key, value, n_indent=0, isoneliner=False):
     indent = '    ' * n_indent
