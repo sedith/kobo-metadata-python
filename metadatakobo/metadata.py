@@ -26,10 +26,10 @@ def yaml_field(key, value, n_indent=0, is_oneliner=False, is_multiline=False):
 
 class CbzMeta:
     """Data representation and manipulation of the metadata yaml files for CBZ.
-    Mandatory fields: name, author, editor, lang, synopsis, vol,
+    Mandatory fields: name, author, publisher, lang, synopsis, vol,
         vol.id, vol.id.name, vol.id.date, vol.id.file
     Optional fields: original, romanji, artist, credit.-.volumes/chapters,
-        credit.-.from, credit.-.team, vol.id.original, vol.id.romanji
+        credit.-.site, credit.-.team, vol.id.original, vol.id.romanji
 
     A typical yaml file for metadata is is:
     --- # Oh-Roh Metadata
@@ -41,7 +41,7 @@ class CbzMeta:
         Buronson
     artist:
         Kentarō Miura
-    editor:
+    publisher:
         Hakusensha
     lang:
         en
@@ -50,25 +50,25 @@ class CbzMeta:
     vol:
         1:
             name:   Oh-Roh
+            original:  王狼
             date:   12-1989
             file:   Oh-Roh.cbz
-            original:  王狼
         2:
             name:   Oh-Roh-Den
+            original:  王狼伝
             date:   08-1990
             file:   Oh-Roh-Den.cbz
-            original:  王狼伝
     """
 
     # Ordered list of fields for clean writing is a regular order
-    fields = ['name', 'original', 'romanji', 'author', 'artist', 'editor', 'lang', 'synopsis', 'credit', 'vol']
-    vol_fields = ['name', 'date', 'file', 'original', 'romanji']
-    credit_fields = ['chapters', 'volumes', 'from', 'team']
+    fields = ['name', 'original', 'romanji', 'author', 'artist', 'publisher', 'lang', 'synopsis', 'credit', 'vol']
+    vol_fields = ['name', 'original', 'romanji', 'date', 'file']
+    credit_fields = ['chapters', 'volumes', 'site', 'team']
 
     def __init__(self, filename='.metadata.yaml', path='.'):
         self.path = path
         self.filename = filename
-        self.data = {'name': 'TODO', 'author': 'TODO', 'editor': 'TODO', 'lang': 'TODO', 'synopsis': 'TODO', 'vol': None}
+        self.data = {'name': 'TODO', 'author': 'TODO', 'publisher': 'TODO', 'lang': 'TODO', 'synopsis': 'TODO', 'vol': None}
 
     def set_field(self, key, value):
         """Update the value of a field.
