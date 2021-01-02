@@ -10,16 +10,19 @@ def yaml_field(key, value, n_indent=0, is_oneliner=False, is_multiline=False):
     The two fields are exclusives, but can both be False.
     """
     indent = '    ' * n_indent
-    yaml_field = indent + key + ':'*(key != '-')
-    if is_multiline: yaml_field += ' |\n'
-    elif not is_oneliner: yaml_field += '\n'
+    yaml_field = indent + key + ':' * (key != '-')
+    if is_multiline:
+        yaml_field += ' |\n'
+    elif not is_oneliner:
+        yaml_field += '\n'
     if value is not None:
-        value = value.replace('\n', '\n'+'    '*is_multiline)
-        value = value.replace('\n    \n','\n\n')    # fix empty tab from last line
+        value = value.replace('\n', '\n' + '    ' * is_multiline)
+        value = value.replace('\n    \n', '\n\n')  # fix empty tab from last line
         while value[-1] in ['\n', ' ']:
-             value = value[:-1]    # remove last linebreak or spaces
-        yaml_field += (indent+' ')*(not is_oneliner) + '   ' + value + '\n'
+            value = value[:-1]  # remove last linebreak or spaces
+        yaml_field += (indent + ' ') * (not is_oneliner) + '   ' + value + '\n'
     return yaml_field
+
 
 class CbzMeta:
     """Data representation and manipulation of the metadata yaml files for CBZ.
@@ -57,14 +60,15 @@ class CbzMeta:
             original:  王狼伝
     """
 
+    # Ordered list of fields for clean writing is a regular order
     fields = ['name', 'original', 'romanji', 'author', 'artist', 'editor', 'lang', 'synopsis', 'credit', 'vol']
     vol_fields = ['name', 'date', 'file', 'original', 'romanji']
     credit_fields = ['chapters', 'volumes', 'from', 'team']
 
-    def __init__(self, serie, path='.', filename='.metadata.yaml'):
+    def __init__(self, filename='.metadata.yaml', path='.'):
         self.path = path
         self.filename = filename
-        self.data = {'name':serie, 'author':'TODO', 'editor':'TODO', 'lang':'TODO', 'synopsis':'TODO', 'vol':None}
+        self.data = {'name': 'TODO', 'author': 'TODO', 'editor': 'TODO', 'lang': 'TODO', 'synopsis': 'TODO', 'vol': None}
 
     def set_field(self, key, value):
         """Update the value of a field.
@@ -80,17 +84,21 @@ class CbzMeta:
 
     def load_yaml(self):
         """Load the data from the yaml file."""
-        with open(join(self.path,self.filename), 'r') as yamlfile:
+        with open(join(self.path, self.filename), 'r') as yamlfile:
             self.data = {**self.data, **yaml.safe_load(yamlfile)}
 
     def write_yaml(self):
-        """Write or rewrite the data onto the yaml file."""
-        with open(join(self.path,self.filename), 'w') as yamlfile:
+        """Write or rewrite the data onto the yaml file.
+        I use this poorly written function instead of yaml.dump in order
+        to control the yaml field orders and display style (oneline, multiline...)
+        """
+        with open(join(self.path, self.filename), 'w') as yamlfile:
             yamlfile.write('--- # %s Metadata\n' % self.data['name'])
             for key in self.fields:
                 if key == 'vol':
                     yamlfile.write(yaml_field('vol', None))
-                    if self.data['vol'] is None: continue
+                    if self.data['vol'] is None:
+                        continue
                     indices = sorted(self.data['vol'].keys())
                     for i_v in indices:
                         yamlfile.write(yaml_field(str(i_v), None, 1))
@@ -113,7 +121,7 @@ class CbzMeta:
                 else:
                     try:
                         value = self.data[key]
-                        string = yaml_field(key, value, is_multiline=(key=='synopsis'))
+                        string = yaml_field(key, value, is_multiline=(key == 'synopsis'))
                         yamlfile.write(string)
                     except KeyError:
                         pass
@@ -123,7 +131,7 @@ class CbzMeta:
         cbz = sorted_aphanumeric(self.path, ext=['cbz'])
         volumes = {}
         for file in cbz:
-            (name,_) = file.split('.')
-            volumes[i] = {'name':name, 'date':'TODO', 'file':file}
+            (name, _) = file.split('.')
+            volumes[i] = {'name': name, 'date': 'TODO', 'file': file}
             i += 1
-        self.set_field('vol', volumes)
+        return volumes

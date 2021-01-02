@@ -66,8 +66,8 @@ class KoboDB:
         if modifiers:
             modifiers = ' WHERE ' + ' OR '.join(modifiers)
         if order:
-            order = ' ORDER BY ' + table + '.' + order
-        self.cursor.execute('SELECT %s FROM %s%s%s' % (selectors, table, modifiers, order))
+            order = ' ORDER BY %s' % order
+            self.cursor.execute('SELECT %s FROM %s%s%s' % (selectors, table, modifiers, order))
         return self.cursor.fetchall()
 
     def get_list_dict(self, table='content', selectors='*', **kwargs):
