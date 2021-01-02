@@ -28,8 +28,9 @@ class CbzMeta:
     """Data representation and manipulation of the metadata yaml files for CBZ.
     Mandatory fields: name, author, publisher, lang, synopsis, vol,
         vol.id, vol.id.name, vol.id.date, vol.id.file
-    Optional fields: original, romanji, artist, credit.-.volumes/chapters,
-        credit.-.site, credit.-.team, vol.id.original, vol.id.romanji
+    Optional fields: original, romanji, artist, credit.vols/chap,
+        credit.site, credit.team, credit.editor, credit.cleaner,
+        credit.raw, credit.translate, vol.id.original, vol.id.romanji
 
     A typical yaml file for metadata is is:
     --- # Oh-Roh Metadata
@@ -63,7 +64,7 @@ class CbzMeta:
     # Ordered list of fields for clean writing is a regular order
     fields = ['name', 'original', 'romanji', 'author', 'artist', 'publisher', 'lang', 'synopsis', 'credit', 'vol']
     vol_fields = ['name', 'original', 'romanji', 'date', 'file']
-    credit_fields = ['chapters', 'volumes', 'site', 'team']
+    credit_fields = ['chap', 'vols', 'site', 'team', 'editor', 'cleaner', 'raw', 'translate']
 
     def __init__(self, filename='.metadata.yaml', path='.'):
         self.path = path
