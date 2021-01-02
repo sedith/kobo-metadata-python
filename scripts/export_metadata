@@ -28,7 +28,7 @@ if __name__ == '__main__':
         author = author + ', ' + metadata.data['artist']
     except KeyError:
         pass
-    editor = metadata.data['editor']
+    publisher = metadata.data['publisher']
     lang = metadata.data['lang']
     description = '<div style="text-align: justify;">' + metadata.data['synopsis'] + '<div>'
     volumes = metadata.data['vol']
@@ -42,6 +42,7 @@ if __name__ == '__main__':
         pass
 
     # Iterate over all volumes
+    ignored = []
     for id in volumes:
         # Check if volume is in the list passed as argument (if any)
         if args.volumes is not None and str(id) not in args.volumes:
@@ -52,12 +53,12 @@ if __name__ == '__main__':
         try:
             file = volumes[id]['file']
         except KeyError:
-            args.volumes.pop(id)
+            ignored += [id]
             continue
 
         # Check if the file is already on the Kobo device
         if exists(join(args.kobopath, args.directory, file)):
-            print('Skipping:%s already exists on Kobo device.' % file)
+            print('Skipping: %s already exists on Kobo device.' % file)
             continue
 
         # Import the file
@@ -67,6 +68,8 @@ if __name__ == '__main__':
         except FileNotFoundError:
             print('Skipping: %s does not exist.' % join(args.path, file))
             continue
+    for id in ignored:
+        volumes.pop(id)
 
     ## Ask for user to initialize the new files in database by disconnecting Kobo, and plug it back
     input(
@@ -114,9 +117,9 @@ if __name__ == '__main__':
         # Export metadata
         print('Treating ' + file)
         if not is_oneshot:
-            kobo.edit_book(contentID, title, author, editor, lang, date, description, (serie, id))
+            kobo.edit_book(contentID, title, author, publisher, lang, date, description, (serie, id))
         else:
-            kobo.edit_book(contentID, title, author, editor, lang, date, description)
+            kobo.edit_book(contentID, title, author, publisher, lang, date, description)
 
     # Save the database and disconnect
     kobo.disconnect()
