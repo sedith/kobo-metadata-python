@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import argparse
 from os import getcwd
-from os.path import join
+from os.path import join, basename
 import metadatakobo as mk
 
 
@@ -9,7 +9,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Initialize metadata file for a given serie folder.')
     parser.add_argument('-p', dest='path', help='Path to working directory.', default=getcwd(), type=str)
     parser.add_argument('-m', dest='metafile', help='Metadata file.', default='.metadata.yaml', type=str)
-    parser.add_argument('-s', dest='serie', help='Serie\'s name.', default=get_serie(getcwd()), type=str)
+    parser.add_argument('-s', dest='serie', help='Serie\'s name.', default=basename(getcwd()), type=str)
     parser.add_argument('-i', dest='index', help='Index of the first volume in the folder.', default=1, type=int)
     args = parser.parse_args()
 

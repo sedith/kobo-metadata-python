@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from .utils import *
+from .utils import sorted_aphanumeric
 import yaml
 
 
@@ -43,7 +43,7 @@ class CbzMeta:
     artist:
         Kentarō Miura
     publisher:
-        Hakusensha
+        Hakusenshapathpathpatpathpathh
     lang:
         en
     synopsis:
@@ -61,7 +61,7 @@ class CbzMeta:
             file:   Oh-Roh-Den.cbz
     """
 
-    # Ordered list of fields for clean writing is a regular order
+    # Ordered list of fields for clean writing is a consistent order
     fields = ['name', 'original', 'romanji', 'author', 'artist', 'publisher', 'lang', 'synopsis', 'credit', 'vol']
     vol_fields = ['name', 'original', 'romanji', 'date', 'file']
     credit_fields = ['chap', 'vols', 'site', 'team', 'editor', 'cleaner', 'raw', 'translate']
@@ -70,6 +70,19 @@ class CbzMeta:
         self.path = path
         self.filename = filename
         self.data = {'name': 'TODO', 'author': 'TODO', 'publisher': 'TODO', 'lang': 'TODO', 'synopsis': 'TODO', 'vol': None}
+
+    # Metadata
+    def get_field(self, key):
+        """Read the value of a field.
+        Nested keys are passed are key.subkey.
+        """
+        keys = key.split('.')
+        if len(keys) == 1:
+            return self.data[keys[0]]
+        elif len(keys) == 2:
+            return self.data[keys[0]][keys[1]]
+        elif len(keys) == 3:
+            return self.data[keys[0]][keys[1]][keys[2]]
 
     def set_field(self, key, value):
         """Update the value of a field.
@@ -83,6 +96,7 @@ class CbzMeta:
         elif len(keys) == 3:
             self.data[keys[0]][keys[1]][keys[2]] = value
 
+    # Interact with yaml file
     def load_yaml(self):
         """Load the data from the yaml file."""
         with open(join(self.path, self.filename), 'r') as yamlfile:
@@ -90,8 +104,13 @@ class CbzMeta:
 
     def write_yaml(self):
         """Write or rewrite the data onto the yaml file.
+
         I use this poorly written function instead of yaml.dump in order
         to control the yaml field orders and display style (oneline, multiline...)
+        The way the credits are written is completely adhoc since there is no
+        consistency on the information available regarding those. I decided to create an
+        object for each set of volumes or chapters from one single team. When available,
+        I also include the individual roles (cleaner, raw, trad...)
         """
         with open(join(self.path, self.filename), 'w') as yamlfile:
             yamlfile.write('--- # %s Metadata\n' % self.data['name'])
@@ -127,6 +146,7 @@ class CbzMeta:
                     except KeyError:
                         pass
 
+    # Misc
     def get_volumes_dict(self, index=1):
         """Scan the path and create the volumes field from the cbz files."""
         cbz = sorted_aphanumeric(self.path, ext=['cbz'])

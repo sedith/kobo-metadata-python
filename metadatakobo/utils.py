@@ -23,11 +23,3 @@ def sorted_aphanumeric(path, ext=[], ignore=[], dirs=False):
 def get_ext(file):
     """Return the extension of the given filename."""
     return file.split('.')[-1]
-
-
-def get_folder(path):
-    """Return the current folder name from a given path."""
-    serie = path.split('/')[-1]
-    if serie == '':
-        serie = path.split('/')[-2]
-    return serie

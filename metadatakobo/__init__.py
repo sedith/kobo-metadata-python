@@ -1,3 +1,3 @@
 from .utils import *
 from .koboDB import *
-from .metadata import *
+from .cbz_meta import *
