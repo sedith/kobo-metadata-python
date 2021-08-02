@@ -44,7 +44,7 @@ class CbzMeta:
     artist:
         Kentarō Miura
     publisher:
-        Hakusenshapathpathpatpathpathh
+        Hakusensha
     lang:
         en
     synopsis:
