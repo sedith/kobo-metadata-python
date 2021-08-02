@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import argparse
 from os import getcwd
-from os.path import join, basename
+from os.path import basename
 import metadatakobo as mk
 
 

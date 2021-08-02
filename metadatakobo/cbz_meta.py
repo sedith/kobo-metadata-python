@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from .utils import sorted_aphanumeric
+from os.path import join
 import yaml
 
 
@@ -128,7 +129,7 @@ class CbzMeta:
                                 yamlfile.write(yaml_field(key_v, value, 2, is_oneliner=True))
                             except KeyError:
                                 pass
-                elif key == 'credit' and type(self.data['credit']) == list:
+                elif key == 'credit' and key in self.data and type(self.data[key]) == list:
                     yamlfile.write(yaml_field('credit', None))
                     for cred in self.data['credit']:
                         yamlfile.write(yaml_field('-', None, 1))
@@ -153,6 +154,6 @@ class CbzMeta:
         volumes = {}
         for file in cbz:
             (name, _) = file.split('.')
-            volumes[i] = {'name': name, 'date': 'TODO', 'file': file}
-            i += 1
+            volumes[index] = {'name': name, 'date': 'TODO', 'file': file}
+            index += 1
         return volumes
