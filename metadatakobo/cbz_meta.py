@@ -105,7 +105,6 @@ class CbzMeta:
 
     def write_yaml(self):
         """Write or rewrite the data onto the yaml file.
-
         I use this poorly written function instead of yaml.dump in order
         to control the yaml field orders and display style (oneline, multiline...)
         The way the credits are written is completely adhoc since there is no

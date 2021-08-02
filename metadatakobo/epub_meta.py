@@ -3,13 +3,14 @@ import zipfile
 from os.path import basename, join
 import bs4
 
+
 class EpubMeta:
     """Data representation and manipulation of the epub metadata.
     Mandatory fields: name, author, publisher, date, lang, synopsis
     Optional fields: serie, vol, ISBN
     """
 
-    epub_fields = {'name':'dc:title', 'author':'dc:creator','publisher':'dc:publisher','date':'dc:date'}
+    epub_fields = {'name': 'dc:title', 'author': 'dc:creator', 'publisher': 'dc:publisher', 'date': 'dc:date'}
 
     def __init__(self, filename, path='.'):
         self.path = path

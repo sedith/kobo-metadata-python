@@ -47,7 +47,7 @@ class KoboDB:
     # Generic getters
     def get_fields(self, table='content'):
         """Get names of fields within a given table.
-        PRAGMA table_info returns: (index, fieldname, type, None, 0)
+        'PRAGMA table_info' returns: (index, fieldname, type, None, 0)
         """
         self.cursor.execute('PRAGMA table_info(%s)' % table)
         return [field[1] for field in self.cursor.fetchall()]
