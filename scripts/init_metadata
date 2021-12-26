@@ -9,11 +9,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Initialize metadata file for a given serie folder.')
     parser.add_argument('-p', dest='path', help='Path to working directory.', default=getcwd(), type=str)
     parser.add_argument('-m', dest='metafile', help='Metadata file.', default='.metadata.yaml', type=str)
-    parser.add_argument('-s', dest='serie', help='Serie\'s name.', default=basename(getcwd()), type=str)
+    parser.add_argument('-s', dest='serie', help='Serie\'s name.', default="", type=str)
     parser.add_argument('-i', dest='index', help='Index of the first volume in the folder.', default=1, type=int)
     args = parser.parse_args()
 
-    metadata = mk.CbzMeta(args.metafile)
+    if args.serie == '':
+        if args.path.endswith('/'):
+            args.path = args.path[:-1]
+        args.serie = basename(args.path)
+
+    metadata = mk.CbzMeta(args.metafile, args.path)
 
     metadata.set_field('name', args.serie)
 

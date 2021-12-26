@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='metadata-kobo-python',
-    version='1.1.2',
+    version='1.1.3',
     packages=setuptools.find_packages(),
     scripts=[
         'scripts/export_metadata',
