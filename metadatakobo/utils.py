@@ -8,6 +8,11 @@ def sorted_aphanumeric(path, ext=[], ignore=[], dirs=False):
     """Alphanumeric sort all files in path.
     Only consider extensions in ext, ignore filenames in ignore, and list only directions if dirs.
     """
+    if type(ext) != list:
+        ext = [ext]
+    for i,e in enumerate(ext):
+        if not e.startswith('.'):
+            ext[i] = '.' + e
     data = [
         f
         for f in listdir(path)
