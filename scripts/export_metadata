@@ -46,7 +46,7 @@ if __name__ == '__main__':
     for id in volumes:
         # Check if volume is in the list passed as argument (if any)
         if args.volumes is not None and str(id) not in args.volumes:
-            args.volumes.pop(id)
+            ignored += [id]
             continue
 
         # Try to read the file field; if it fails, the entry is ignored
