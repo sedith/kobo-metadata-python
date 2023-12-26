@@ -3,7 +3,7 @@
 Exports the metadata from a customized yaml file to the Kobo database.  
 Written for Linux (access path to Kobo device begin `/media/<user>/<device>`). Needs to be adapted for any other OS.
 
-This package is partially based on [Akkana's scripts for Kobo](https://github.com/akkana/scripts/tree/master/kobo) for a couple of functions in _utils.py_.
+This package is partially based on [Akkana's scripts for Kobo](https://github.com/akkana/scripts/tree/master/kobo) for a couple of functions in `utils.py`.
 
 ## Dependencies
 
@@ -21,12 +21,13 @@ The fiels that are exported to the Kobo are :
 * synopsis (description)
 * volume ID, name, and date (_dd-mm-yyyy_, _mm-yyyy_ or _yyyy_)
 
-Any additional field will be ignored when exporting be can be managed by the user.
+Any additional field will be ignored when exporting, but can be managed by the user.
 The file name associated to each _volume_ entry is required.
 
 ## Exporting to the Kobo device
 
 The export scripts first copies all the files to the Kobo, then (once the Kobo processed each file), update the metadatas.
+This requires manual plug/unplug of the Kobo device.
 
 The export script requires parameters:
 * the path to the Kobo device

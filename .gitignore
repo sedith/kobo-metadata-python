@@ -1,3 +1,5 @@
 **/__pycache__
 **.epub
 **.kepub
+build
+*egg-info

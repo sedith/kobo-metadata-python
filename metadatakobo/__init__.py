@@ -1,4 +1,3 @@
-from .utils import *
-from .koboDB import *
-from .cbz_meta import *
-from .epub_meta import *
+from .kobo_db import KoboDB
+from .cbz_meta import CbzMeta
+from .epub_meta import EpubMeta

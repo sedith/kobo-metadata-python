@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='metadata-kobo-python',
+    name='metadata-kobo',
     version='1.1.3',
     packages=setuptools.find_packages(),
     scripts=[

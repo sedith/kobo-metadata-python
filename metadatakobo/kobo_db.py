@@ -7,30 +7,26 @@ import time
 
 def time_to_kobo(y, m, d='01', h='00', mi='00', s='00'):
     """Format timestamp for Kobo."""
-    y = str(y)
-    m = str(m)
-    d = str(d)
-    h = str(h)
-    mi = str(mi)
-    s = str(s)
-    return y + '-' + m + '-' + d + 'T' + h + ':' + mi + ':' + s + 'Z'
+    return str(y) + '-' + str(m) + '-' + str(d) + 'T' + str(h) + ':' + str(mi) + ':' + str(s) + 'Z'
+
 
 
 class KoboDB:
     """Interact with Kobo database."""
-
     def __init__(self, path):
         self.path = path
         self.dbpath = None
         self.db = None
         self.cursor = None
 
-    # Connexion
+
+    ## connexion
     def connect(self):
         """Create dbection handler with Kobo database."""
         dbpath = join(self.path, '.kobo/KoboReader.sqlite')
         self.db = sql.connect(dbpath)
         self.cursor = self.db.cursor()
+
 
     def disconnect(self):
         """Commit and close dbection to database."""
@@ -39,10 +35,12 @@ class KoboDB:
         self.db = None
         self.cursor = None
 
+
     def get_current_time(self):
         """Get system time and format it for Kobo."""
         t = time.localtime()
         return time_to_kobo(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
+
 
     # Generic getters
     def get_fields(self, table='content'):
@@ -51,6 +49,7 @@ class KoboDB:
         """
         self.cursor.execute('PRAGMA table_info(%s)' % table)
         return [field[1] for field in self.cursor.fetchall()]
+
 
     def get_list(self, table='content', selectors='*', modifiers='', order=''):
         """List elements within a given table.
@@ -70,6 +69,7 @@ class KoboDB:
         self.cursor.execute('SELECT %s FROM %s%s%s' % (selectors, table, modifiers, order))
         return self.cursor.fetchall()
 
+
     def get_list_dict(self, table='content', selectors='*', **kwargs):
         '''List elements within a given table as a dictionnary.'''
         l = self.get_list(table=table, selectors=selectors, **kwargs)
@@ -77,13 +77,15 @@ class KoboDB:
             selectors = self.get_field_names(table)
         return [dict(list(zip(selectors, values))) for values in l]
 
-    # Book getters
+
+    ## book getters
     def book_from_title(self, bookname):
         """Fin a book contentID from its book title."""
         self.cursor.execute('SELECT ContentID FROM content WHERE Title=?', (bookname,))
         id = self.cursor.fetchone()
         if id:
             return id[0]
+
 
     def book_from_filename(self, filename):
         """Find a book contentID from its filename."""
@@ -92,15 +94,18 @@ class KoboDB:
             if id[0].endswith(filename):
                 return id[0]
 
-    # Manage books
+
+    ## manage books
     def list_books(self):
         """List all books in the database."""
         return self.get_list_dict('content', selectors=['Title'], modifiers=['BookID IS NULL'])
+
 
     def rm_book(self, contentID):
         """Remove a book and all its content from the database."""
         self.cursor.execute('DELETE FROM content WHERE ContentID=?', (contentID,))
         self.cursor.execute('DELETE FROM content WHERE BookID=?', (contentID,))
+
 
     def edit_book(self, contentID, bookname=None, author=None, publisher=None, lang=None, date=None, description=None, serie=None):
         """Edit a book from its contentID.
@@ -124,7 +129,8 @@ class KoboDB:
             self.cursor.execute('UPDATE content SET SeriesNumber=? WHERE ContentID=?', (serie[1], contentID))
             self.cursor.execute('UPDATE content SET SeriesNumberFloat=? WHERE ContentID=?', (serie[1], contentID))
 
-    # Manage shelves
+
+    ## manage shelves
     def list_shelves(self):
         """List all shelves in the database."""
         return self.get_list_dict('Shelf', selectors=['Id'])

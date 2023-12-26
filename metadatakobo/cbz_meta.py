@@ -61,8 +61,7 @@ class CbzMeta:
             date:   08-1990
             file:   Oh-Roh-Den.cbz
     """
-
-    # Ordered list of fields for clean writing is a consistent order
+    # Ordered list of fields for clean yaml writing is a consistent order
     fields = ['name', 'original', 'romanji', 'author', 'artist', 'publisher', 'lang', 'synopsis', 'credit', 'vol']
     vol_fields = ['name', 'original', 'romanji', 'date', 'file']
     credit_fields = ['chap', 'vols', 'site', 'team', 'editor', 'cleaner', 'raw', 'translate']
@@ -72,7 +71,8 @@ class CbzMeta:
         self.filename = filename
         self.data = {'name': 'TODO', 'author': 'TODO', 'publisher': 'TODO', 'lang': 'TODO', 'synopsis': 'TODO', 'vol': None}
 
-    # Metadata
+
+    ## metadata
     def get_field(self, key):
         """Read the value of a field.
         Nested keys are passed are key.subkey.
@@ -84,6 +84,7 @@ class CbzMeta:
             return self.data[keys[0]][keys[1]]
         elif len(keys) == 3:
             return self.data[keys[0]][keys[1]][keys[2]]
+
 
     def set_field(self, key, value):
         """Update the value of a field.
@@ -97,11 +98,13 @@ class CbzMeta:
         elif len(keys) == 3:
             self.data[keys[0]][keys[1]][keys[2]] = value
 
-    # Interact with yaml file
+
+    ## interact with yaml file
     def load_yaml(self):
         """Load the data from the yaml file."""
         with open(join(self.path, self.filename), 'r') as yamlfile:
             self.data = {**self.data, **yaml.safe_load(yamlfile)}
+
 
     def write_yaml(self):
         """Write or rewrite the data onto the yaml file.
@@ -146,7 +149,8 @@ class CbzMeta:
                     except KeyError:
                         pass
 
-    # Misc
+
+    ## misc
     def get_volumes_dict(self, index=1):
         """Scan the path and create the volumes field from the cbz files."""
         cbz = sorted_aphanumeric(self.path, ext=['cbz'])
