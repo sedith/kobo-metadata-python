@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 from os import listdir
 from os.path import isfile, isdir, join
 import sqlite3 as sql
@@ -30,10 +29,11 @@ class KoboDB:
 
     def disconnect(self):
         """Commit and close dbection to database."""
-        self.db.commit()
-        self.db.close()
-        self.db = None
-        self.cursor = None
+        if db is not None:
+            self.db.commit()
+            self.db.close()
+            self.db = None
+            self.cursor = None
 
 
     def get_current_time(self):
@@ -42,7 +42,7 @@ class KoboDB:
         return time_to_kobo(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
 
 
-    # Generic getters
+    ## generic getters
     def get_fields(self, table='content'):
         """Get names of fields within a given table.
         'PRAGMA table_info' returns: (index, fieldname, type, None, 0)
@@ -51,15 +51,13 @@ class KoboDB:
         return [field[1] for field in self.cursor.fetchall()]
 
 
-    def get_list(self, table='content', selectors='*', modifiers='', order=''):
+    def get_table_list(self, table='content', selectors='*', modifiers='', order=''):
         """List elements within a given table.
-        kwargs are:
-        - selectors: list of fields to retrieve;
-        - modifiers: list of OR conditions;
-        - order: name of the ordering field.
+        selectors   -- list of fields to retrieve
+        modifiers   -- list of OR conditions
+        order       -- name of the ordering field
         """
-        # Format the sql request as:
-        # SELECT [sel1,sel2] FROM [table] WHERE [mod1] AND mod2 ORDER BY [ord1]
+        ## format the sql request as: SELECT [sel1,sel2] FROM [table] WHERE [mod1] AND mod2 ORDER BY [ord1]
         if selectors != '*':
             selectors = ','.join(selectors)
         if modifiers:
@@ -70,9 +68,9 @@ class KoboDB:
         return self.cursor.fetchall()
 
 
-    def get_list_dict(self, table='content', selectors='*', **kwargs):
-        '''List elements within a given table as a dictionnary.'''
-        l = self.get_list(table=table, selectors=selectors, **kwargs)
+    def get_table_dict(self, table='content', selectors='*', **kwargs):
+        """List elements within a given table as a dictionnary."""
+        l = self.get_table_list(table=table, selectors=selectors, **kwargs)
         if selectors == '*':
             selectors = self.get_field_names(table)
         return [dict(list(zip(selectors, values))) for values in l]
@@ -80,7 +78,7 @@ class KoboDB:
 
     ## book getters
     def book_from_title(self, bookname):
-        """Fin a book contentID from its book title."""
+        """Find a book contentID from its book title."""
         self.cursor.execute('SELECT ContentID FROM content WHERE Title=?', (bookname,))
         id = self.cursor.fetchone()
         if id:
@@ -89,7 +87,7 @@ class KoboDB:
 
     def book_from_filename(self, filename):
         """Find a book contentID from its filename."""
-        contentIDs = self.get_list('content', selectors=['ContentID'], modifiers=['BookID IS NULL'])
+        contentIDs = self.get_table_list('content', selectors=['ContentID'], modifiers=['BookID IS NULL'])
         for id in contentIDs:
             if id[0].endswith(filename):
                 return id[0]
@@ -98,7 +96,7 @@ class KoboDB:
     ## manage books
     def list_books(self):
         """List all books in the database."""
-        return self.get_list_dict('content', selectors=['Title'], modifiers=['BookID IS NULL'])
+        return self.get_table_dict('content', selectors=['Title'], modifiers=['BookID IS NULL'])
 
 
     def rm_book(self, contentID):
@@ -133,14 +131,14 @@ class KoboDB:
     ## manage shelves
     def list_shelves(self):
         """List all shelves in the database."""
-        return self.get_list_dict('Shelf', selectors=['Id'])
+        return self.get_table_dict('Shelf', selectors=['Id'])
 
     def list_shelf_contents(self, shelfname):
         """List all books in a given shelf."""
-        ids = self.get_list('ShelfContent', selectors=['contentID'], modifiers=['ShelfName="%s"' % shelfname])
+        ids = self.get_table_list('ShelfContent', selectors=['contentID'], modifiers=['ShelfName="%s"' % shelfname])
         if ids != []:
             modifiers = ['ContentID="%s"' % id for id in ids]
-            return self.get_list_dict('content', selectors=['Title'], modifiers=modifiers)
+            return self.get_table_dict('content', selectors=['Title'], modifiers=modifiers)
 
     def add_shelf(self, shelfname):
         """Create an empty shelf."""

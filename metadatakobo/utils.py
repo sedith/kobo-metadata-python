@@ -1,9 +1,9 @@
-#!/usr/bin/python3
 import re
 from os import listdir
-from os.path import isfile, isdir, join
+from os.path import isfile, isdir, join, splitext
 
 
+## misc
 def sorted_aphanumeric(path, ext=[], ignore=[], dirs=False):
     """Alphanumeric sort all files in path.
     ext         -- extensions of files to consider, if applicable
@@ -26,9 +26,21 @@ def sorted_aphanumeric(path, ext=[], ignore=[], dirs=False):
 
 def get_ext(file):
     """Return the extension of the given filename."""
-    return splitext(file.lower())[1]
+    return splitext(file.lower())[1][1:]
 
 
 def remove_ext(file):
     """Return the given filename without its extension."""
     return splitext(file.lower())[0]
+
+
+## metadata
+def get_volumes_dict(path, index=1):
+    """Scan the path and create the volumes field from the cbz files."""
+    cbz = sorted_aphanumeric(path, ext=['cbz'])
+    volumes = {}
+    for file in cbz:
+        name = remove_ext(file)
+        volumes[index] = {'name': name, 'date': 'TODO', 'file': file}
+        index += 1
+    return volumes

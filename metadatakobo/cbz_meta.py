@@ -1,10 +1,9 @@
-#!/usr/bin/python3
-from .utils import sorted_aphanumeric
+from metadatakobo.utils import sorted_aphanumeric, remove_ext
 from os.path import join
 import yaml
 
 
-def yaml_field(key, value, n_indent=0, is_oneliner=False, is_multiline=False):
+def _yaml_field(key, value, n_indent=0, is_oneliner=False, is_multiline=False):
     """Format a string for a yaml field.
     is_oneliner remove the linebreak after the field name;
     is_multiline adds a | after the field name to allow multiline value.
@@ -119,44 +118,32 @@ class CbzMeta:
             yamlfile.write('--- # %s Metadata\n' % self.data['name'])
             for key in self.fields:
                 if key == 'vol':
-                    yamlfile.write(yaml_field('vol', None))
+                    yamlfile.write(_yaml_field('vol', None))
                     if self.data['vol'] is None:
                         continue
                     indices = sorted(self.data['vol'].keys())
                     for i_v in indices:
-                        yamlfile.write(yaml_field(str(i_v), None, 1))
+                        yamlfile.write(_yaml_field(str(i_v), None, 1))
                         for key_v in self.vol_fields:
                             try:
                                 value = self.data['vol'][i_v][key_v]
-                                yamlfile.write(yaml_field(key_v, value, 2, is_oneliner=True))
+                                yamlfile.write(_yaml_field(key_v, value, 2, is_oneliner=True))
                             except KeyError:
                                 pass
                 elif key == 'credit' and key in self.data and type(self.data[key]) == list:
-                    yamlfile.write(yaml_field('credit', None))
+                    yamlfile.write(_yaml_field('credit', None))
                     for cred in self.data['credit']:
-                        yamlfile.write(yaml_field('-', None, 1))
+                        yamlfile.write(_yaml_field('-', None, 1))
                         for key_c in self.credit_fields:
                             try:
                                 value = cred[key_c]
-                                yamlfile.write(yaml_field(key_c, str(value), 2, is_oneliner=True))
+                                yamlfile.write(_yaml_field(key_c, str(value), 2, is_oneliner=True))
                             except KeyError:
                                 pass
                 else:
                     try:
                         value = self.data[key]
-                        string = yaml_field(key, value, is_multiline=(key == 'synopsis'))
+                        string = _yaml_field(key, value, is_multiline=(key == 'synopsis'))
                         yamlfile.write(string)
                     except KeyError:
                         pass
-
-
-    ## misc
-    def get_volumes_dict(self, index=1):
-        """Scan the path and create the volumes field from the cbz files."""
-        cbz = sorted_aphanumeric(self.path, ext=['cbz'])
-        volumes = {}
-        for file in cbz:
-            (name, _) = file.split('.')
-            volumes[index] = {'name': name, 'date': 'TODO', 'file': file}
-            index += 1
-        return volumes

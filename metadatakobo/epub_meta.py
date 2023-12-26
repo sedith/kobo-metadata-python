@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import zipfile
 from os.path import basename, join
 import bs4

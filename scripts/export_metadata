@@ -9,98 +9,120 @@ import metadatakobo as mk
 
 
 if __name__ == '__main__':
-    ## Parse arguments
-    parser = argparse.ArgumentParser(description='Export metadata to the Kobo database.')
-    parser.add_argument('-p', dest='path', help='Path to working directory.', default='./', type=str)
-    parser.add_argument('-m', dest='metafile', help='Metadata file (relative path from -p).', default='.metadata.yaml', type=str)
-    parser.add_argument('-v', dest='volumes', help='Ids of volumes to import to the Kobo device.', default=None, type=str, nargs='*')
-    parser.add_argument('-k', dest='kobopath', help='Path to the Kobo device.', default='/media/mjacquet/KOBORTIN', type=str)
-    parser.add_argument('-d', dest='directory', help='Target directory name on Kobo device.', default='Mangas', type=str)
+    ## parse arguments
+    parser = argparse.ArgumentParser(description='export metadata to the Kobo database')
+    parser.add_argument('-p', dest='path', help='path to working directory', default='./', type=str)
+    parser.add_argument('-m', dest='metafile', help='metadata file (relative path from -p)', default='.metadata.yaml', type=str)
+    parser.add_argument('-v', dest='volumes', help='ids of volumes to export (sequence of individual ids or ranges id1-id2)', default=None, type=str, nargs='*')
+    parser.add_argument('-k', dest='kobopath', help='path to the Kobo device', default='/media/mjacquet/KOBORTIN', type=str)
+    parser.add_argument('-d', dest='directory', help='target directory name on Kobo device', default='Mangas', type=str)
     args = parser.parse_args()
 
-    ## Load metadata
-    metadata = mk.CbzMeta(args.metafile)
-    metadata.load_yaml()
+    ## load metadata
+    meta = mk.CbzMeta(args.metafile)
+    meta.load_yaml()
 
-    serie = metadata.data['name']
-    author = metadata.data['author']
+    serie = meta.data['name']
+    author = meta.data['author']
     try:
-        author = author + ', ' + metadata.data['artist']
+        author = author + ', ' + meta.data['artist']
     except KeyError:
         pass
-    publisher = metadata.data['publisher']
-    lang = metadata.data['lang']
-    description = '<div style="text-align: justify;">' + metadata.data['synopsis'] + '<div>'
-    volumes = metadata.data['vol']
+    publisher = meta.data['publisher']
+    lang = meta.data['lang']
+    description = '<div style="text-align: justify;">' + meta.data['synopsis'] + '<div>'
+    volumes = meta.data['vol']
     is_oneshot = len(volumes.keys()) == 1
 
-    ## Copy all requested files to the Kobo device
-    # First, create the target directory on the Kobo
+    if args.volumes:
+        volumes_to_export = []
+        for vol in args.volumes:
+            if '-' in vol:
+                v_start, v_end = vol.split('-')
+                volumes_to_export += list(range(int(v_start), int(v_end)+1))
+            else:
+                try:
+                    volumes_to_export += [int(vol)]
+                except:
+                    print('Skipping: %s is not a valid volume name')
+    else:
+        volumes_to_export = volumes.keys()
+
+    ## copy all requested files to the Kobo device
+    ## create the target directory on the Kobo (if not already there)
     try:
         makedirs(join(args.kobopath, args.directory))
     except FileExistsError:
         pass
 
-    # Iterate over all volumes
+    ## iterate over all volumes
     ignored = []
-    for id in volumes:
-        # Check if volume is in the list passed as argument (if any)
-        if args.volumes is not None and str(id) not in args.volumes:
+    for id in volumes_to_export:
+        ## check if requested volume exist
+        if id not in volumes:
             ignored += [id]
+            print('Skipping: vol %s does not appear in the metadata.' % id)
             continue
 
-        # Try to read the file field; if it fails, the entry is ignored
+        ## try to read the file field; if it fails, the entry is ignored
         try:
             file = volumes[id]['file']
         except KeyError:
             ignored += [id]
+            print('Skipping: volume %s does not a valid path to the cbz.' % id)
             continue
 
-        # Check if the file is already on the Kobo device
+        ## check if the file is already on the Kobo device
         if exists(join(args.kobopath, args.directory, file)):
             print('Skipping: %s already exists on Kobo device.' % file)
             continue
 
-        # Import the file
+        ## import the file
         print('Importing %s' % file)
         try:
             copyfile(join(args.path, file), join(args.kobopath, args.directory, file))
         except FileNotFoundError:
             print('Skipping: %s does not exist.' % join(args.path, file))
+            ignored += [id]
             continue
-    for id in ignored:
-        volumes.pop(id)
 
-    ## Ask for user to initialize the new files in database by disconnecting Kobo, and plug it back
+    print(ignored)
+    print(volumes_to_export)
+    for v in ignored:
+        volumes_to_export.remove(v)
+    print(volumes_to_export)
+
+    ## ask for user to initialize the new files in database by disconnecting Kobo, and plug it back
     input(
         'All desired files has been copied on the Kobo device.\n'
         + 'Please unplug it and wait for the end of the importation, then plug it back.\n'
         + 'Press any key when the Kobo device is plugged and detected by the computer.'
     )
 
-    ## Import all the metadatas to the Kobo database
-    # Connect to Kobo database
+    ## import all the metadatas to the Kobo database
+    ## connect to Kobo database
     kobo = mk.KoboDB(args.kobopath)
     kobo.connect()
 
-    # Get volume metadata
-    for id in volumes:
+    ## get volume metadata
+    for id in volumes_to_export:
         vol = volumes[id]
         file = vol['file']
 
-        # Find the Kobo contentID for the specified file
+        ## find the Kobo contentID for the specified file
         contentID = kobo.book_from_filename(file)
-        # Format title
+        ## format title
         if is_oneshot:
             title = serie
         else:
             title = vol['name']
+        ## add original title if applicable
         try:
             title = '%s (%s)' % (title, vol['original'])
         except KeyError:
             pass
 
-        # Format date
+        ## format date
         try:
             date = str(vol['date']).split('-')
             if len(date) == 3:  # metadata is day-month-year
@@ -114,12 +136,12 @@ if __name__ == '__main__':
         except KeyError:
             date = 'unknown'
 
-        # Export metadata
+        ## export metadata
         print('Treating ' + file)
         if not is_oneshot:
             kobo.edit_book(contentID, title, author, publisher, lang, date, description, (serie, id))
         else:
             kobo.edit_book(contentID, title, author, publisher, lang, date, description)
 
-    # Save the database and disconnect
+    ## save the database and disconnect
     kobo.disconnect()

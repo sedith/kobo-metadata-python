@@ -6,11 +6,11 @@ import metadatakobo as mk
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Initialize metadata file for a given serie folder.')
-    parser.add_argument('-p', dest='path', help='Path to working directory.', default=getcwd(), type=str)
-    parser.add_argument('-m', dest='metafile', help='Metadata file.', default='.metadata.yaml', type=str)
-    parser.add_argument('-s', dest='serie', help='Serie\'s name.', default="", type=str)
-    parser.add_argument('-i', dest='index', help='Index of the first volume in the folder.', default=1, type=int)
+    parser = argparse.ArgumentParser(description='initialize metadata file for a given serie folder')
+    parser.add_argument('-p', dest='path', help='path to working directory', default=getcwd(), type=str)
+    parser.add_argument('-m', dest='metafile', help='metadata file', default='.metadata.yaml', type=str)
+    parser.add_argument('-s', dest='serie', help='serie\'s name', default="", type=str)
+    parser.add_argument('-i', dest='index', help='index of the first volume in the folder', default=1, type=int)
     args = parser.parse_args()
 
     if args.serie == '':
@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     metadata.set_field('name', args.serie)
 
-    volumes = metadata.get_volumes_dict(args.index)
+    volumes = mk.utils.get_volumes_dict(args.path, args.index)
     metadata.set_field('vol', volumes)
 
     metadata.write_yaml()
