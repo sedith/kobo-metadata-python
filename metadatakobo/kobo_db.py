@@ -29,7 +29,7 @@ class KoboDB:
 
     def disconnect(self):
         """Commit and close dbection to database."""
-        if db is not None:
+        if self.db is not None:
             self.db.commit()
             self.db.close()
             self.db = None

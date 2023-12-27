@@ -86,11 +86,8 @@ if __name__ == '__main__':
             ignored += [id]
             continue
 
-    print(ignored)
-    print(volumes_to_export)
     for v in ignored:
         volumes_to_export.remove(v)
-    print(volumes_to_export)
 
     ## ask for user to initialize the new files in database by disconnecting Kobo, and plug it back
     input(
